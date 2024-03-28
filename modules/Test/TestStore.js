@@ -7,6 +7,8 @@ export class TestStore {
     tests = []
     test = null
     selectedResult = null
+    profileData = null
+    profile = []
 
     constructor() {
         makeAutoObservable(this)
@@ -53,6 +55,50 @@ export class TestStore {
         this.setLoading(false)
     }
 
+    getProfile = (testId) => {
+        this.setLoading(true)
+
+        this.setProfile(this.testService.getProfiles().filter(p => p.testId == testId))
+
+        this.setLoading(false)
+    }
+
+    getProfileData = () => {
+
+        this.setLoading(true)
+
+        const formatDate = (date) => {
+            return date.toLocaleString('ru-Ru', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            }).replace(',', '');
+        };
+
+        const date = this.profile[0].created_at
+        const formattedDate = formatDate(date);
+
+        this.chooseResult(this.profile[0].score_result, this.profile[0].testId)
+
+        const result = `Вы прошли этот тест ${formattedDate}. \n\nРезультат теста: ${this.selectedResult.title}\n\n${this.selectedResult.description}`
+
+        this.setProfileData(result)
+
+        this.setLoading(false)
+    }
+
+    deleteProfile = () => {
+        this.setLoading(true)
+
+        this.testService.deleteProfile(this.profile)
+        this.setProfile([])
+        this.setProfileData(null)
+
+        this.setLoading(false)
+    }
+
     setLoading = (value) => {
         this.loading = value;
     };
@@ -67,5 +113,13 @@ export class TestStore {
 
     setResult = (value) => {
         this.selectedResult = value
+    }
+
+    setProfileData = (value) => {
+        this.profileData = value
+    }
+
+    setProfile = (value) => {
+        this.profile = value
     }
 }
