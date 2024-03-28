@@ -5,6 +5,7 @@ import { CustomAnswerButton } from '../components/CustomAnswerButton';
 import { ButtonSize, ButtonType } from '../components/CustomButton';
 import { observer } from 'mobx-react';
 import { useRootStore } from '../hooks/useRootStore';
+import { CustomContainer } from '../components/CustomContainer';
 
 
 export const TestScreen = observer(({ navigation }) => {
@@ -21,7 +22,6 @@ export const TestScreen = observer(({ navigation }) => {
     }, [testName])
 
     useEffect(() => {
-        console.log(currentQuestionIndex)
     }, [currentQuestionIndex]);
 
     useEffect(() => {
@@ -45,13 +45,16 @@ export const TestScreen = observer(({ navigation }) => {
     };
 
     return (
+
         <View style={styles.container}>
-            {!testStore.loading && testStore.test != null && !isTestComplete ? (
-                <>
+            {testStore.loading || testStore.test == null || isTestComplete ? (
+                <ActivityIndicator />
+            ) : (
+                <CustomContainer>
                     <Text style={styles.title}>{testStore.test.questions[currentQuestionIndex].question}</Text>
                     <FlatList
                         data={testStore.test.questions[currentQuestionIndex].answers}
-                        renderItem={({item}) => (
+                        renderItem={({ item }) => (
                             <CustomAnswerButton
                                 title={item.answer}
                                 size={ButtonSize.Medium}
@@ -62,9 +65,8 @@ export const TestScreen = observer(({ navigation }) => {
                             />
                         )}
                     />
-                </>
-            ) : (
-                <ActivityIndicator />
+                    <Text style={styles.index}>{currentQuestionIndex + 1} / {testStore.test.questions.length}</Text>
+                </CustomContainer>
             )}
         </View>
     )
@@ -82,5 +84,9 @@ const styles = StyleSheet.create({
     title: {
         fontWeight: 'bold',
         fontSize: 16
+    },
+    index: {
+        fontWeight: 'bold',
+        fontSize: 12
     },
 });
