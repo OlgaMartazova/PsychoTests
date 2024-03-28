@@ -5,9 +5,9 @@ import { CustomContainer } from "../components/CustomContainer"
 import { ButtonSize, ButtonType, CustomButton } from "../components/CustomButton"
 import { useRootStore } from "../hooks/useRootStore"
 import { observer } from "mobx-react"
-import QuestionModel from "../modules/Question/QuestionModel"
-import { TestTable } from "../modules/Test/TestModel"
+import { TestStore } from "../modules/Test/TestStore"
 import { RealmClient } from "../utils/Realmclient"
+import { ProfileTable } from "../modules/Profile/ProfileModel"
 
 export const InfoScreen = observer(({ navigation }) => {
     const route = useRoute()
@@ -21,6 +21,7 @@ export const InfoScreen = observer(({ navigation }) => {
 
     useEffect(() => {
         testStore.getTestById(testId)
+        console.log("profs", RealmClient.objects(ProfileTable) == null ? "null": RealmClient.objects(ProfileTable).filter(p => p.testId == testId))
     }, [])
 
     const handleTestPress = (testName, testId) => {

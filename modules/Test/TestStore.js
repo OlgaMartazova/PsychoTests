@@ -6,6 +6,7 @@ export class TestStore {
     loading = false;
     tests = []
     test = null
+    selectedResult = null
 
     constructor() {
         makeAutoObservable(this)
@@ -28,6 +29,30 @@ export class TestStore {
         this.setLoading(false)
     }
 
+    addProfile = (score_result, testId) => {
+        this.setLoading(true)
+
+        this.testService.createProfile(score_result, testId)
+
+        this.setLoading(false)
+    }
+
+    chooseResult = (score, testId) => {
+        this.setLoading(true)
+
+        this.getTestById(testId)
+
+        const results = this.test.results
+        for (let i = 0; i < results.length; i++) {
+            const result = results[i];
+            if (score >= result.min_score && score <= result.max_score) {
+                this.setResult(result)
+            }
+        }
+
+        this.setLoading(false)
+    }
+
     setLoading = (value) => {
         this.loading = value;
     };
@@ -38,5 +63,9 @@ export class TestStore {
 
     setTest = (value) => {
         this.test = value
+    }
+
+    setResult = (value) => {
+        this.selectedResult = value
     }
 }

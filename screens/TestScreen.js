@@ -14,6 +14,7 @@ export const TestScreen = observer(({ navigation }) => {
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [isTestComplete, setIsTestComplete] = useState(false)
+    const [score, setScore] = useState(0)
 
     useEffect(() => {
         navigation.setOptions({ title: testName })
@@ -25,7 +26,7 @@ export const TestScreen = observer(({ navigation }) => {
 
     useEffect(() => {
         if (isTestComplete) {
-            navigation.navigate('Result', { testName, testId });
+            navigation.navigate('Result', { testName, testId, score });
         }
     }, [isTestComplete]);
 
@@ -33,13 +34,14 @@ export const TestScreen = observer(({ navigation }) => {
         testStore.getTestById(testId)
     }, [])
 
-    const handleQuestionPress = () => {
+    const handleQuestionPress = (item_score) => {
         if (currentQuestionIndex + 1 === testStore.test.questions.length) {
             setIsTestComplete(true)
         }
         if (!isTestComplete) {
             setCurrentQuestionIndex(currentQuestionIndex + 1)
         }
+        setScore(score + item_score)
     };
 
     return (
@@ -55,7 +57,7 @@ export const TestScreen = observer(({ navigation }) => {
                                 size={ButtonSize.Medium}
                                 type={ButtonType.Secondary}
                                 onPress={() => {
-                                    handleQuestionPress(testName, testId)
+                                    handleQuestionPress(item.score)
                                 }}
                             />
                         )}

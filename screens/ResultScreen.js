@@ -1,43 +1,53 @@
 import { useRoute } from "@react-navigation/native"
-import { useEffect } from "react"
-import {ButtonSize, ButtonType, CustomButton} from "../components/CustomButton";
+import { useEffect, useState } from "react"
+import { ButtonSize, ButtonType, CustomButton } from "../components/CustomButton";
 import { View, StyleSheet, Text, TouchableOpacity, TextInput, FlatList, SafeAreaView, ActivityIndicator, ScrollView } from 'react-native';
-import {testsMock} from "../mocks/TestsMock";
+import { testsMock } from "../mocks/TestsMock";
 import { CustomContainer } from "../components/CustomContainer";
+import { observer } from "mobx-react";
+import { useRootStore } from "../hooks/useRootStore";
 
 
-export const ResultScreen = ({ navigation }) => {
+export const ResultScreen = observer(({ navigation }) => {
     const route = useRoute()
-    const { testName, testId } = route.params
+    const { testName, testId, score } = route.params
+    const { testStore } = useRootStore()
 
     useEffect(() => {
         navigation.setOptions({ title: testName });
     }, [testName])
 
+    useEffect(() => {
+        testStore.addProfile(score, testId)
+        testStore.chooseResult(score, testId)
+    }, [])
+
     const handleTestPress = () => {
         navigation.navigate('Психологические тесты');
     };
 
-    const testList = testsMock;
-
     return (
         <View style={styles.container}>
-            <CustomContainer>
-                <Text style={styles.title}>Ваш результат:</Text>
-                <Text>{testList[testId].results[0].title}</Text>
-                <Text>{testList[testId].results[0].description}</Text>
-                <CustomButton
-                    title={'На главную'}
-                    size={ButtonSize.Medium}
-                    type={ButtonType.Secondary}
-                    onPress={() => {
-                        handleTestPress()
-                    }}
-                />
-            </CustomContainer>
+            {testStore.loading || testStore.selectedResult == null ? (
+                <ActivityIndicator />
+            ) : (
+                <CustomContainer>
+                    <Text style={styles.title}>Ваш результат:</Text>
+                    <Text>{testStore.selectedResult.title}</Text>
+                    <Text>{testStore.selectedResult.description}</Text>
+                    <CustomButton
+                        title={'На главную'}
+                        size={ButtonSize.Medium}
+                        type={ButtonType.Secondary}
+                        onPress={() => {
+                            handleTestPress()
+                        }}
+                    />
+                </CustomContainer>
+            )}
         </View>
     );
-}
+})
 
 const styles = StyleSheet.create({
     container: {
