@@ -8,8 +8,8 @@ export const ListScreen = () => {
 
     const testList = testsMock
 
-    const handleTestPress = (testName) => {
-        navigation.navigate('Info', { testName })
+    const handleTestPress = (testName, testId) => {
+        navigation.navigate('Info', { testName, testId })
     }
 
     return (
@@ -23,7 +23,7 @@ export const ListScreen = () => {
                             size={ButtonSize.Medium}
                             type={ButtonType.Primary}
                             onPress={() => {
-                                handleTestPress(item.name)
+                                handleTestPress(item.name, item.id)
                             }} />
                     )}
                 />
