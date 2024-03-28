@@ -1,12 +1,18 @@
 import { useNavigation } from "@react-navigation/native"
-import { testsMock } from "../mocks/TestsMock"
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native"
 import { ButtonSize, ButtonType, CustomButton } from "../components/CustomButton"
+import { useEffect } from "react"
+import { useRootStore } from "../hooks/useRootStore"
+import { observer } from "mobx-react"
 
-export const ListScreen = () => {
+export const ListScreen = observer(() => {
     const navigation = useNavigation()
 
-    const testList = testsMock
+    const { testStore } = useRootStore()
+
+    useEffect(() => {
+        testStore.getTests()
+    }, [])
 
     const handleTestPress = (testName, testId) => {
         navigation.navigate('Info', { testName, testId })
@@ -14,9 +20,11 @@ export const ListScreen = () => {
 
     return (
         <View style={styles.container}>
-            {testList ? (
+            {testStore.loading ?  (
+                <ActivityIndicator />
+            ) : (
                 <FlatList
-                    data={testList}
+                    data={testStore.tests}
                     renderItem={({ item }) => (
                         <CustomButton
                             title={item.name}
@@ -27,13 +35,11 @@ export const ListScreen = () => {
                             }} />
                     )}
                 />
-            ) : (
-                <ActivityIndicator />
             )}
         </View>
     );
 
-}
+})
 
 const styles = StyleSheet.create({
     container: {

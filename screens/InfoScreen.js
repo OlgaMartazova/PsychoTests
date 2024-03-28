@@ -1,44 +1,53 @@
 import { useRoute } from "@react-navigation/native"
 import { useEffect } from "react"
-import { testsMock } from "../mocks/TestsMock"
-import { View, StyleSheet, Text } from "react-native"
+import { View, StyleSheet, Text, ActivityIndicator } from "react-native"
 import { CustomContainer } from "../components/CustomContainer"
 import { ButtonSize, ButtonType, CustomButton } from "../components/CustomButton"
-import { RealmClient } from "../utils/Realmclient"
+import { useRootStore } from "../hooks/useRootStore"
+import { observer } from "mobx-react"
+import QuestionModel from "../modules/Question/QuestionModel"
 import { TestTable } from "../modules/Test/TestModel"
+import { RealmClient } from "../utils/Realmclient"
 
-export const InfoScreen = ({ navigation }) => {
+export const InfoScreen = observer(({ navigation }) => {
     const route = useRoute()
     const { testName, testId } = route.params
 
+    const { testStore } = useRootStore()
+
     useEffect(() => {
         navigation.setOptions({ title: testName })
-        console.log("realm check", RealmClient.objects(TestTable))
     }, [testName])
+
+    useEffect(() => {
+        testStore.getTestById(testId)
+    }, [])
 
     const handleTestPress = (testName, testId) => {
         navigation.navigate('Test', { testName, testId })
     }
 
-    const testList = testsMock
-
     return (
         <View style={styles.container}>
-            <CustomContainer>
-                <Text style={styles.title}>{testList[testId].name}</Text>
-                <Text>{testList[testId].description}</Text>
-                <CustomButton
-                    title={'Начать'}
-                    size={ButtonSize.Medium}
-                    type={ButtonType.Secondary}
-                    onPress={() => {
-                        handleTestPress(testName, testId)
-                    }}
-                />
-            </CustomContainer>
+            {testStore.loading || testStore.test == null ? (
+                <ActivityIndicator />
+            ) : (
+                <CustomContainer>
+                    <Text style={styles.title}>{testStore.test.name}</Text>
+                    <Text>{testStore.test.description}</Text>
+                    <CustomButton
+                        title={'Начать'}
+                        size={ButtonSize.Medium}
+                        type={ButtonType.Secondary}
+                        onPress={() => {
+                            handleTestPress(testName, testId)
+                        }}
+                    />
+                </CustomContainer>
+            )}
         </View>
     )
-}
+})
 
 const styles = StyleSheet.create({
     container: {

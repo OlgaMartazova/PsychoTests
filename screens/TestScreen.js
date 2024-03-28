@@ -1,15 +1,17 @@
 import { useRoute } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { SafeAreaView, Text, View, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
-import { testsMock } from '../mocks/TestsMock';
 import { CustomAnswerButton } from '../components/CustomAnswerButton';
 import { ButtonSize, ButtonType } from '../components/CustomButton';
-import { answersMock } from "../mocks/AnswersMock";
+import { observer } from 'mobx-react';
+import { useRootStore } from '../hooks/useRootStore';
 
 
-export const TestScreen = ({ navigation }) => {
+export const TestScreen = observer(({ navigation }) => {
     const route = useRoute()
     const { testName, testId } = route.params
+    const { testStore } = useRootStore()
+
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [isTestComplete, setIsTestComplete] = useState(false)
 
@@ -27,8 +29,12 @@ export const TestScreen = ({ navigation }) => {
         }
     }, [isTestComplete]);
 
+    useEffect(() => {
+        testStore.getTestById(testId)
+    }, [])
+
     const handleQuestionPress = () => {
-        if (currentQuestionIndex + 1 === testsMock[testId].questions.length) {
+        if (currentQuestionIndex + 1 === testStore.test.questions.length) {
             setIsTestComplete(true)
         }
         if (!isTestComplete) {
@@ -36,20 +42,16 @@ export const TestScreen = ({ navigation }) => {
         }
     };
 
-    const testList = testsMock
-
-    const answersList = answersMock.filter(el => el.test_id === testId)
-
     return (
         <View style={styles.container}>
-            {testList && answersList && !isTestComplete ? (
+            {!testStore.loading && testStore.test != null && !isTestComplete ? (
                 <>
-                    <Text style={styles.title}>{testList[testId].questions[currentQuestionIndex].text}</Text>
+                    <Text style={styles.title}>{testStore.test.questions[currentQuestionIndex].question}</Text>
                     <FlatList
-                        data={answersList[currentQuestionIndex].answers}
+                        data={testStore.test.questions[currentQuestionIndex].answers}
                         renderItem={({item}) => (
                             <CustomAnswerButton
-                                title={item.text}
+                                title={item.answer}
                                 size={ButtonSize.Medium}
                                 type={ButtonType.Secondary}
                                 onPress={() => {
@@ -64,7 +66,7 @@ export const TestScreen = ({ navigation }) => {
             )}
         </View>
     )
-}
+})
 
 const styles = StyleSheet.create({
     container: {
