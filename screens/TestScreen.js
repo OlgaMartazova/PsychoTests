@@ -6,6 +6,8 @@ import { ButtonSize, ButtonType } from '../components/CustomButton';
 import { observer } from 'mobx-react';
 import { useRootStore } from '../hooks/useRootStore';
 import { CustomContainer } from '../components/CustomContainer';
+import Modal from 'react-native-modalize';
+import ModalBack from '../components/ModalBack';
 
 
 export const TestScreen = observer(({ navigation }) => {
@@ -16,6 +18,29 @@ export const TestScreen = observer(({ navigation }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
     const [isTestComplete, setIsTestComplete] = useState(false)
     const [score, setScore] = useState(0)
+
+    //Modal
+    const [modalBackVisible, setModalBackVisible] = useState(false);
+
+    const handleBackPress = () => {
+        setModalBackVisible(true);
+    };
+
+    const handleExit = () => {
+        navigation.navigate('InfoScreen'); 
+    };
+
+    const handleCloseModal = () => {
+        setModalBackVisible(false);
+    };
+
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+        };
+    }, []);
 
     useEffect(() => {
         navigation.setOptions({ title: testName })
@@ -68,6 +93,12 @@ export const TestScreen = observer(({ navigation }) => {
                     <Text style={styles.index}>{currentQuestionIndex + 1} / {testStore.test.questions.length}</Text>
                 </CustomContainer>
             )}
+            
+            <ModalBack
+                visible={modalBackVisible}
+                onClose={handleCloseModal}
+                onExit={handleExit}
+            />
         </View>
     )
 })
